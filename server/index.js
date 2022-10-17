@@ -19,7 +19,27 @@ app.get("/",async (req,res) => {
         if (!result) result=[]
         res.status(200).json(result)
     }   catch(err) {
-        res.status(500).json(err.message)
+        res.status(500).json({error: err.message})
+    }
+})
+
+app.post("/new",async (req,res)=> {
+    try {
+        const connection = await mysql.createConnection(config.db)
+        const [result,] = await connection.execute('insert into task (description) values (?) ',[req.body.description])
+        res.status(200).json({id:result.insertId})
+    } catch(err) {
+        res.status(500).json({error: err.message})
+    }
+})
+
+app.delete("/delete/:id",async (req,res)=> {
+    try {
+        const connection = await mysql.createConnection(config.db)
+        await connection.execute('delete from task where id = ? ',[req.params.id])
+        res.status(200).json({id:req.params.id})
+    } catch(err) {
+        res.status(500).json({error: err.message})
     }
 })
 
